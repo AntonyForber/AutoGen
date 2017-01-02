@@ -1,0 +1,10 @@
+{
+    "name": "antony-forber/autogen",
+    "description": "Generator for Yii2",
+    "authors": [
+        {
+            "name": "Antony Forber",
+            "email": "forber@mail.ua"
+        }
+    ]
+}
