@@ -98,7 +98,14 @@ class Base<?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\'
 <?php endif; ?>
     
 <?php foreach ($tableSchema->columns as $column): ?>
-    public function get<?= ucfirst($column->name)?>()
+    <?php
+    $nameArr = explode('_' , $column->name);
+    $nameArr = array_map(function($item) {
+        return ucfirst($item);
+    }, $nameArr);
+    $cName = implode('', $nameArr);
+    ?>
+public function get<?= ucfirst($cName)?>()
     {
         return $this-><?= $column->name?>;
     }
