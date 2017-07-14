@@ -13,7 +13,7 @@
 /* @var $rules string[] list of validation rules */
 /* @var $relations array list of relations (name => relation declaration) */
 
-$sluggable_field = 'num';
+$sluggable_field = 'slug';
 
 $extParams = [
     'timestamp' => false,

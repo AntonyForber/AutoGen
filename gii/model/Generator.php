@@ -229,6 +229,8 @@ class Generator extends \yii\gii\Generator
             if ($this->useModuleTranslates) {
                 $params['moduleNamespace'] = $this->moduleNamespace;
                 $params['moduleTranslateFileName'] = $this->moduleTranslateFileName;
+            } else {
+                $params['moduleNamespace'] = false;
             }
             $files[] = new CodeFile(
                 Yii::getAlias('@' . str_replace('\\', '/', $this->ns)) . '/base/Base' . $modelClassName . '.php',
