@@ -13,3 +13,23 @@ or add
 "antony-forber/autogen": "@dev"
 ```
 to the require section of your composer.json file.
+
+# Config
+
+Update
+```
+$config['modules']['gii'] = [
+    'class' => 'yii\gii\Module',
+];
+```
+to the next
+```
+$config['modules']['gii'] = [
+    'class' => 'yii\gii\Module',
+    'generators' => [
+        'extendedGenerator' => [
+            'class' => 'AntonyForber\gii\model\Generator'
+        ],
+    ],
+];
+```
