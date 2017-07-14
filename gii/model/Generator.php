@@ -33,6 +33,11 @@ class Generator extends \yii\gii\Generator
     public $generateLabelsFromComments = false;
     public $useTablePrefix = false;
     public $useSchemaName = true;
+    
+    public $useModuleTranslates = false;
+    public $moduleNamespace;
+    public $moduleTranslateFileName;
+    
     public $generateQuery = false;
     public $queryNs = 'app\models';
     public $queryClass;
@@ -44,7 +49,7 @@ class Generator extends \yii\gii\Generator
      */
     public function getName()
     {
-        return 'Model Generator';
+        return 'Extended Model Generator';
     }
 
     /**
@@ -52,7 +57,7 @@ class Generator extends \yii\gii\Generator
      */
     public function getDescription()
     {
-        return 'This generator generates an ActiveRecord class for the specified database table.';
+        return 'Extended generator from base "Model Generator"';
     }
 
     /**
@@ -65,8 +70,8 @@ class Generator extends \yii\gii\Generator
             [['ns', 'queryNs'], 'filter', 'filter' => function($value) { return trim($value, '\\'); }],
 
             [['db', 'ns', 'tableName', 'baseClass', 'queryNs', 'queryBaseClass'], 'required'],
-            [['db', 'modelClass', 'queryClass'], 'match', 'pattern' => '/^\w+$/', 'message' => 'Only word characters are allowed.'],
-            [['ns', 'baseClass', 'queryNs', 'queryBaseClass'], 'match', 'pattern' => '/^[\w\\\\]+$/', 'message' => 'Only word characters and backslashes are allowed.'],
+            [['db', 'modelClass', 'queryClass', 'moduleTranslateFileName'], 'match', 'pattern' => '/^\w+$/', 'message' => 'Only word characters are allowed.'],
+            [['ns', 'baseClass', 'queryNs', 'queryBaseClass', 'moduleNamespace'], 'match', 'pattern' => '/^[\w\\\\]+$/', 'message' => 'Only word characters and backslashes are allowed.'],
             [['tableName'], 'match', 'pattern' => '/^([\w ]+\.)?([\w\* ]+)$/', 'message' => 'Only word characters, and optionally spaces, an asterisk and/or a dot are allowed.'],
             [['db'], 'validateDb'],
             [['ns', 'queryNs'], 'validateNamespace'],
@@ -75,7 +80,7 @@ class Generator extends \yii\gii\Generator
             [['baseClass'], 'validateClass', 'params' => ['extends' => ActiveRecord::className()]],
             [['queryBaseClass'], 'validateClass', 'params' => ['extends' => ActiveQuery::className()]],
             [['generateRelations'], 'in', 'range' => [self::RELATIONS_NONE, self::RELATIONS_ALL, self::RELATIONS_ALL_INVERSE]],
-            [['generateLabelsFromComments', 'useTablePrefix', 'useSchemaName', 'generateQuery'], 'boolean'],
+            [['generateLabelsFromComments', 'useTablePrefix', 'useSchemaName', 'generateQuery', 'useModuleTranslates'], 'boolean'],
             [['enableI18N'], 'boolean'],
             [['messageCategory'], 'validateMessageCategory', 'skipOnEmpty' => false],
         ]);
@@ -99,6 +104,9 @@ class Generator extends \yii\gii\Generator
             'queryClass' => 'ActiveQuery Class',
             'queryBaseClass' => 'ActiveQuery Base Class',
             'useSchemaName' => 'Use Schema Name',
+            'useModuleTranslates' => 'Use Module class for i18n translates',
+            'moduleNamespace' => 'Namespace of Module class',
+            'moduleTranslateFileName' => 'Name of file with translates',
         ]);
     }
 
@@ -138,6 +146,9 @@ class Generator extends \yii\gii\Generator
                 the namespace part as it is specified in "ActiveQuery Namespace". You do not need to specify the class name
                 if "Table Name" ends with asterisk, in which case multiple ActiveQuery classes will be generated.',
             'queryBaseClass' => 'This is the base class of the new ActiveQuery class. It should be a fully qualified namespaced class name.',
+            'useModuleTranslates' => 'Use Module class for i18n translates',
+            'moduleNamespace' => 'Namespace of Module class, e.g., <code>app\modules\%module_name%</code>',
+            'moduleTranslateFileName' => 'Name of file with translates',
         ]);
     }
 
@@ -172,7 +183,8 @@ class Generator extends \yii\gii\Generator
      */
     public function stickyAttributes()
     {
-        return array_merge(parent::stickyAttributes(), ['ns', 'db', 'baseClass', 'generateRelations', 'generateLabelsFromComments', 'queryNs', 'queryBaseClass']);
+        return array_merge(parent::stickyAttributes(), ['ns', 'db', 'baseClass', 'generateRelations', 'generateLabelsFromComments', 'queryNs', 'queryBaseClass',
+            'moduleNamespace', 'moduleTranslateFileName']);
     }
 
     /**
@@ -214,6 +226,14 @@ class Generator extends \yii\gii\Generator
                 'rules' => $this->generateRules($tableSchema),
                 'relations' => isset($relations[$tableName]) ? $relations[$tableName] : [],
             ];
+            if ($this->useModuleTranslates) {
+                $params['moduleNamespace'] = $this->moduleNamespace;
+                $params['moduleTranslateFileName'] = $this->moduleTranslateFileName;
+            }
+            $files[] = new CodeFile(
+                Yii::getAlias('@' . str_replace('\\', '/', $this->ns)) . '/base/Base' . $modelClassName . '.php',
+                $this->render('base_model.php', $params)
+            );
             $files[] = new CodeFile(
                 Yii::getAlias('@' . str_replace('\\', '/', $this->ns)) . '/' . $modelClassName . '.php',
                 $this->render('model.php', $params)
@@ -223,6 +243,10 @@ class Generator extends \yii\gii\Generator
             if ($queryClassName) {
                 $params['className'] = $queryClassName;
                 $params['modelClassName'] = $modelClassName;
+                $files[] = new CodeFile(
+                    Yii::getAlias('@' . str_replace('\\', '/', $this->queryNs)) . '/base/Base' . $queryClassName . '.php',
+                    $this->render('base_query.php', $params)
+                );
                 $files[] = new CodeFile(
                     Yii::getAlias('@' . str_replace('\\', '/', $this->queryNs)) . '/' . $queryClassName . '.php',
                     $this->render('query.php', $params)

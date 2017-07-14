@@ -22,14 +22,14 @@ if ($generator->ns !== $generator->queryNs) {
 echo "<?php\n";
 ?>
 
-namespace <?= $generator->queryNs ?>;
+namespace <?= $generator->queryNs . '\base' ?>;
 
 /**
  * This is the ActiveQuery class for [[<?= $modelFullClassName ?>]].
  *
  * @see <?= $modelFullClassName . "\n" ?>
  */
-class <?= $className ?> extends <?= '\\' . ltrim($generator->queryBaseClass, '\\') . "\n" ?>
+class Base<?= $className ?> extends <?= '\\' . ltrim($generator->queryBaseClass, '\\') . "\n" ?>
 {
     /*public function active()
     {

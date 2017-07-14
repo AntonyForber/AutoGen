@@ -13,54 +13,62 @@
 /* @var $rules string[] list of validation rules */
 /* @var $relations array list of relations (name => relation declaration) */
 
+$sluggable_field = 'num';
+
+$extParams = [
+    'timestamp' => false,
+    'sluggable' => false,
+];
+foreach ($tableSchema->columns as $column) {
+    if ($column->name == 'created_at' || $column->name == 'updated_at') {
+        $extParams['timestamp'] = true;
+    }
+    if ($column->name == $sluggable_field) {
+        $extParams['sluggable'] = true;
+    }
+}
+
 echo "<?php\n";
 ?>
 
 namespace <?= $generator->ns ?>;
 
 use Yii;
+<?php if ($extParams['timestamp']) :?>
+use yii\behaviors\TimestampBehavior;
+<?php endif; ?>
+<?php if ($extParams['sluggable']) :?>
+use yii\behaviors\SluggableBehavior;
+<?php endif; ?>
+<?php if ($moduleNamespace) :?>
+use <?= $moduleNamespace?>\Module;
+<?php endif; ?>
 
 /**
- * This is the model class for table "<?= $generator->generateTableName($tableName) ?>".
- *
-<?php foreach ($tableSchema->columns as $column): ?>
- * @property <?= "{$column->phpType} \${$column->name}\n" ?>
-<?php endforeach; ?>
-<?php if (!empty($relations)): ?>
- *
-<?php foreach ($relations as $name => $relation): ?>
- * @property <?= $relation[1] . ($relation[2] ? '[]' : '') . ' $' . lcfirst($name) . "\n" ?>
-<?php endforeach; ?>
-<?php endif; ?>
+ * This is the extended model from base class for table "<?= $generator->generateTableName($tableName) ?>".
  */
-class <?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\') . "\n" ?>
+class <?= $className ?> extends base\Base<?= $className . "\n" ?>
 {
-    /**
-     * @inheritdoc
-     */
-    public static function tableName()
+<?php if ($extParams['timestamp'] || $extParams['sluggable']): ?>
+    public function behaviors()
     {
-        return '<?= $generator->generateTableName($tableName) ?>';
-    }
-<?php if ($generator->db !== 'db'): ?>
-
-    /**
-     * @return \yii\db\Connection the database connection used by this AR class.
-     */
-    public static function getDb()
-    {
-        return Yii::$app->get('<?= $generator->db ?>');
+        return [
+<?php if ($extParams['timestamp']) :?>
+            TimestampBehavior::className(),
+<?php endif; ?>
+<?php if ($extParams['sluggable']) :?>
+            [
+                'class'        => SluggableBehavior::className(),
+                'attribute'    => ['name'],
+                'immutable'    => true, // don't generate new slug in existing model
+                'ensureUnique' => true, // make unique slug
+            ],
+<?php endif; ?>
+        ];
     }
 <?php endif; ?>
-
-    /**
-     * @inheritdoc
-     */
-    public function rules()
-    {
-        return [<?= "\n            " . implode(",\n            ", $rules) . ",\n        " ?>];
-    }
-
+    
+<?php if ($moduleNamespace) :?>
     /**
      * @inheritdoc
      */
@@ -68,32 +76,9 @@ class <?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\') . 
     {
         return [
 <?php foreach ($labels as $name => $label): ?>
-            <?= "'$name' => " . $generator->generateString($label) . ",\n" ?>
+            <?= "'$name' => Module::t('$moduleTranslateFileName', '" . strtoupper( $className . '_ATTRIBUTE_' . $name . '_LABEL') . "'),\n"?>
 <?php endforeach; ?>
         ];
-    }
-<?php foreach ($relations as $name => $relation): ?>
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function get<?= $name ?>()
-    {
-        <?= $relation[0] . "\n" ?>
-    }
-<?php endforeach; ?>
-<?php if ($queryClassName): ?>
-<?php
-    $queryClassFullName = ($generator->ns === $generator->queryNs) ? $queryClassName : '\\' . $generator->queryNs . '\\' . $queryClassName;
-    echo "\n";
-?>
-    /**
-     * @inheritdoc
-     * @return <?= $queryClassFullName ?> the active query used by this AR class.
-     */
-    public static function find()
-    {
-        return new <?= $queryClassFullName ?>(get_called_class());
     }
 <?php endif; ?>
 }
