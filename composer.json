@@ -19,5 +19,8 @@
                 "AntonyForber\\AutoGen\\AutoGenProvider"
             ]
         }
-    }
+    },
+    "post-update-cmd": [
+        "php artisan vendor:publish --tag=autogen --force"
+    ]
 }
