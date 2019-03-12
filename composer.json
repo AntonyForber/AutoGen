@@ -1,6 +1,6 @@
 {
     "name": "antony-forber/autogen",
-    "description": "Generator for Yii2",
+    "description": "Visual generator for Laravel",
     "authors": [
         {
             "name": "Antony Forber",
@@ -9,5 +9,15 @@
     ],
     "autoload": {
         "psr-4": { "AntonyForber\\": "" }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        },
+        "laravel": {
+            "providers": [
+                "AntonyForber\\AutoGen\\AutoGenProvider"
+            ]
+        }
     }
 }
