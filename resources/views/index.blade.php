@@ -19,7 +19,11 @@
                 <div class="generator col-lg-4">
                     <h3>{{ $generator['name'] }}</h3>
                     <p>{{ $generator['description'] }}</p>
-                    <p><a href="{{ $generator['link'] }}" class="btn btn-default">Старт &raquo;</a></p>
+                    @if ($generator['disable'])
+                        <p><a href="{{ $generator['link'] }}" class="btn btn-default disabled">Under Construction</a></p>
+                    @else
+                        <p><a href="{{ $generator['link'] }}" class="btn btn-default">Старт &raquo;</a></p>
+                    @endif
                 </div>
             @endforeach
         </div>

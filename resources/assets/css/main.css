@@ -292,12 +292,3 @@ body {
     height: 1px;
     padding: 0;
 }
-
-.navbar-inverse {
-    background-color: #337ab7;
-}
-
-.navbar-inverse .navbar-brand img {
-    max-width: 340px;
-    margin-top: 4px;
-}
