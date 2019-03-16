@@ -28,7 +28,7 @@ class Helper
             [
                 'name' => 'Генератор виджетов',
                 'description' => 'Этот генератор поможет вам создать файлы, необходимые для front-end виджета',
-                'link' => route('autogen.model.create'),
+                'link' => route('autogen.widget.create'),
                 'disable' => true,
             ],
         ];
