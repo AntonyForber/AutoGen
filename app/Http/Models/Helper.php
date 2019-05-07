@@ -17,13 +17,13 @@ class Helper
                 'name' => 'Генератор CRUD',
                 'description' => 'Этот генератор создает контроллер, представления и другие файлы, которые реализуют операции CRUD (создание, чтение, обновление, удаление) для указанной модели данных.',
                 'link' => route('autogen.crud.create'),
-                'disable' => true,
+                'disable' => false,
             ],
             [
                 'name' => 'Генератор модулей',
                 'description' => 'Этот генератор помогает вам создать скелет, необходимый для модуля.',
                 'link' => route('autogen.module.create'),
-                'disable' => true,
+                'disable' => false,
             ],
             [
                 'name' => 'Генератор виджетов',

@@ -20,11 +20,8 @@
             </div>
             <div class="footer-fix"></div>
         </div>
-        <footer class="footer">
-            <div class="container">
-<!--                <p class="pull-left">A Product of <a href="http://www.yiisoft.com/">Yii Software LLC</a></p>
-                <p class="pull-right">Powered by <a href="http://www.yiiframework.com/" rel="external">Yii Framework</a></p>-->
-            </div>
-        </footer>
+        
+        @include('AutoGen::layouts.footer')
+        
     </body>
 </html>
